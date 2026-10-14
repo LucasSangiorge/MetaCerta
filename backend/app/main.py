@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.core.database import engine
+from app.modules.users.router import router as users_router
 
 
 app = FastAPI(
@@ -9,6 +10,8 @@ app = FastAPI(
     description="Planejamento de metas financeiras com cotações de moedas.",
     version="0.1.0",
 )
+
+app.include_router(users_router)
 
 
 @app.get("/health", tags=["Health"])
