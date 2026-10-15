@@ -1,6 +1,7 @@
 # API
 fastapi==0.142.2
 uvicorn[standard]==0.54.0
+python-multipart==0.0.32
 
 # Banco de dados
 sqlalchemy==2.1.3
