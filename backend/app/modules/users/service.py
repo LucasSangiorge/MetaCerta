@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.modules.users import repository
 from app.modules.users.model import User
 from app.modules.users.schema import UserCreate
@@ -22,4 +22,15 @@ def create_user(db: Session, data: UserCreate) -> User:
     repository.add(db, user)
     db.commit()
     db.refresh(user)
+    return user
+
+
+def authenticate(db: Session, email: str, password: str) -> User | None:
+    user = repository.get_by_email(db, email)
+
+    if user is None or not user.is_active:
+        return None
+    if not verify_password(password, user.hashed_password):
+        return None
+
     return user
