@@ -27,3 +27,7 @@ def get_account(db: Session, user:User, account_id: int) -> Account:
         raise AccountNotFoundError(account_id)
 
     return account
+
+def list_accounts(db: Session, user: User) -> list[Account]:
+    return repository.list_by_user(db,user.id)
+
