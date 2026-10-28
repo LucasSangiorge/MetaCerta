@@ -2,10 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Identity, ForeignKey, Numeric, func, DateTime
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Identity, Numeric, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
 
 if TYPE_CHECKING:
     from app.modules.accounts.model import Account
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
 
 class Deposit(Base):
     __tablename__ = "deposits"
+    __table_args__ = (CheckConstraint("amount > 0", name="amount_positive"),)
 
     id: Mapped[int] = mapped_column(Identity(), primary_key=True)
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"), index=True)
