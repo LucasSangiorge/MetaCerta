@@ -11,7 +11,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    EXCHANGE_API_URL: str = "https://api.frankfurter.dev/v2"
+    EXCHANGE_API_TIMEOUT: float = 5.0
 
+    
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
         extra="ignore",
