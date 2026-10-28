@@ -153,6 +153,8 @@ Responsável pela extração, transformação e carregamento dos dados de cotaç
 
 O MetaCerta consumirá uma API externa para obter cotações de moedas.
 
+**API escolhida:** [Frankfurter (v2)](https://frankfurter.dev), gratuita, sem chave de acesso e com histórico por período. A comparação com a AwesomeAPI e a PTAX do Banco Central, e os motivos da escolha, estão em [docs/decisao-api-cambio.md](docs/decisao-api-cambio.md).
+
 Inicialmente serão trabalhadas:
 
 * BRL — Real Brasileiro
