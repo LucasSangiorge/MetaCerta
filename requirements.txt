@@ -16,6 +16,10 @@ email-validator==2.3.0
 pyjwt==2.15.1
 pwdlib[argon2]==0.3.1
 
-# Testes (Sprint 5)
+# Pipeline de dados (Sprint 5)
+pandas==3.1.0
+pyarrow==26.0.0
+
+# Testes (Sprint 7)
 pytest==9.1.1
 httpx==0.28.1
