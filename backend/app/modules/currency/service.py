@@ -2,14 +2,14 @@ import httpx
 from pydantic import TypeAdapter, ValidationError
 
 from app.core.config import settings
-from app.modules.currency.schema import ExchangeRate
+from app.modules.currency.schema import FrankfurterRate
 
 
 class ExchangeRateUnavailableError(Exception):
     pass
 
 
-def get_latest_rate(base: str, quote: str) -> ExchangeRate:
+def get_latest_rate(base: str, quote: str) -> FrankfurterRate:
     try:
         response = httpx.get(
             f"{settings.EXCHANGE_API_URL}/rates",
@@ -17,7 +17,7 @@ def get_latest_rate(base: str, quote: str) -> ExchangeRate:
             timeout=settings.EXCHANGE_API_TIMEOUT,
         )
         response.raise_for_status()
-        rates = TypeAdapter(list[ExchangeRate]).validate_json(response.content)
+        rates = TypeAdapter(list[FrankfurterRate]).validate_json(response.content)
     except (httpx.HTTPError, ValidationError) as error:    # 4. os dois tipos de erro: o do httpx e o do Pydantic
         raise ExchangeRateUnavailableError(
             f"Não foi possível obter a cotação de {base}/{quote}: {error}"
@@ -28,6 +28,6 @@ def get_latest_rate(base: str, quote: str) -> ExchangeRate:
             f"Nenhuma cotação encontrada para {base}/{quote}."
         )
 
-    return rates[0]              
+    return rates[0]
 
 
