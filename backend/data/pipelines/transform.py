@@ -6,12 +6,11 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 
+from data.pipelines.config import BRONZE_DIR, SILVER_FILE, setup_logging
+
+
 logger = logging.getLogger(__name__)
 
-DATA_DIR = Path(__file__).resolve().parents[1]
-BRONZE_DIR = DATA_DIR / "bronze" / "currency"
-SILVER_DIR = DATA_DIR / "silver" / "currency"
-SILVER_FILE = SILVER_DIR / "rates.parquet"
 
 RATE_TYPE = pd.ArrowDtype(pa.decimal128(18, 6))
 
@@ -28,7 +27,7 @@ def read_bronze() -> pd.DataFrame:
         raise FileNotFoundError(f"Nenhum arquivo no Bronze: {BRONZE_DIR}")
 
     df = pd.concat(frames, ignore_index=True)
-    logger.info("Bronze %d arquivos, %d linhas", len(frames), len(df))
+    logger.info("Bronze: %d arquivos, %d linhas", len(frames), len(df))
     return df
 
 
@@ -38,7 +37,9 @@ def to_silver(df: pd.DataFrame) -> pd.DataFrame:
     df["base"] = df["base"].str.strip().str.upper()
     df["quote"] = df["quote"].str.strip().str.upper()
     df["rate_date"] = pd.to_datetime(df["rate_date"], errors="coerce").dt.date
-    df["extracted_at"] = pd.to_datetime(df["extracted_at"], format="%Y%m%dT%H%M%SZ", utc=True)
+    df["extracted_at"] = pd.to_datetime(
+        df["extracted_at"], format="%Y%m%dT%H%M%SZ", utc=True
+    )
 
     total = len(df)
     df = df.dropna(subset=["base", "quote", "rate_date", "rate"])
@@ -60,12 +61,16 @@ def to_silver(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_silver(df: pd.DataFrame) -> Path:
-    SILVER_DIR.mkdir(parents=True, exist_ok=True)
+    SILVER_FILE.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(SILVER_FILE, index=False)
     logger.info("Silver: %s (%d linhas)", SILVER_FILE.name, len(df))
     return SILVER_FILE
 
 
+def run() -> Path:
+    return save_silver(to_silver(read_bronze()))
+
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    save_silver(to_silver(read_bronze()))
+    setup_logging()
+    run()

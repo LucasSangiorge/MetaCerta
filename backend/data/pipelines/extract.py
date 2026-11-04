@@ -5,12 +5,10 @@ from pathlib import Path
 import httpx
 
 from app.core.config import settings
+from data.pipelines.config import BRONZE_DIR, PAIRS, setup_logging
 
 
 logger = logging.getLogger(__name__)
-
-BRONZE_DIR = Path(__file__).resolve().parents[1] / "bronze" / "currency"
-PAIRS = [("USD", "BRL"), ("EUR", "BRL")]
 
 
 def extract_rates(base: str, quote: str, start: date, end: date) -> Path:
@@ -22,7 +20,7 @@ def extract_rates(base: str, quote: str, start: date, end: date) -> Path:
             "from": start.isoformat(),
             "to": end.isoformat(),
         },
-        timeout=settings.EXCHANGE_API_TIMEOUT
+        timeout=settings.EXCHANGE_API_TIMEOUT,
     )
     response.raise_for_status()
 
@@ -37,13 +35,13 @@ def extract_rates(base: str, quote: str, start: date, end: date) -> Path:
 
     return path
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
+def run(days: int = 365) -> list[Path]:
     end = date.today()
-    start = end - timedelta(days=365)
-
-    for base, quote in PAIRS:
-        extract_rates(base, quote, start, end)
+    start = end - timedelta(days=days)
+    return [extract_rates(base, quote, start, end) for base, quote in PAIRS]
 
 
+if __name__ == "__main__":
+    setup_logging()
+    run()
