@@ -9,6 +9,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.modules.deposits.model import Deposit
+    from app.modules.goals.model import Goal
 
 
 class Account(Base):
@@ -20,6 +21,7 @@ class Account(Base):
     currency: Mapped[str] = mapped_column(String(3))
     balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), server_default="0")
     deposits: Mapped[list["Deposit"]] = relationship(back_populates="account")
+    goals: Mapped[list["Goal"]] = relationship(back_populates="account")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
