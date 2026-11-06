@@ -3,8 +3,13 @@ from fastapi import APIRouter, HTTPException, status
 from app.core.database import SessionDep
 from app.modules.accounts.service import AccountNotFoundError
 from app.modules.auth.dependencies import CurrentUser
+from app.modules.currency.service import ExchangeRateUnavailableError
 from app.modules.goals import service
-from app.modules.goals.schema import GoalCreate, GoalResponse
+from app.modules.goals.schema import (
+    GoalCreate,
+    GoalProjectionResponse,
+    GoalResponse,
+)
 
 
 router = APIRouter(prefix="/goals", tags=["Goals"])
@@ -24,6 +29,22 @@ def create_goal(data: GoalCreate, db: SessionDep, current_user: CurrentUser):
 @router.get("", response_model=list[GoalResponse])
 def list_goals(db: SessionDep, current_user: CurrentUser):
     return service.list_goals(db, current_user)
+
+
+@router.get("/{goal_id}/projection", response_model=GoalProjectionResponse)
+def get_projection(goal_id: int, db: SessionDep, current_user: CurrentUser):
+    try:
+        return service.get_projection(db, current_user, goal_id)
+    except service.GoalNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meta não encontrada.",
+        ) from None
+    except ExchangeRateUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cotação indisponível no momento. Tente novamente mais tarde.",
+        ) from None
 
 
 @router.get("/{goal_id}", response_model=GoalResponse)
