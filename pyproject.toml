@@ -1,0 +1,8 @@
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    # SQLite (banco de teste) guarda Decimal como float; em produção é PostgreSQL NUMERIC.
+    "ignore:Dialect sqlite\\+pysqlite does \\*not\\* support Decimal objects natively",
+]
